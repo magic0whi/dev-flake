@@ -57,6 +57,7 @@
     ]);
 in
   pkgs.mkShellNoCC {
+    name = "LaTeX";
     buildInputs = with pkgs; [
       my_texlive
       texlab

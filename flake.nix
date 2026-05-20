@@ -50,7 +50,7 @@
           };
       in
         pkgs.mkShellNoCC {
-          name = "dev-default";
+          name = "Dev-default";
           buildInputs =
             [
               (script "build" [] ''

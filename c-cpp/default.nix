@@ -2,6 +2,7 @@
     # Override stdenv to change compiler:
     # stdenv = pkgs.clangStdenv;
   } {
+    name = "CPP";
     buildInputs = with pkgs;
       [
         llvmPackages.clangUseLLVM

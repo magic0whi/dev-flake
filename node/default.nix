@@ -5,6 +5,7 @@
   });
 in
   _pkgs.mkShell {
+    name = "Node.js";
     buildInputs = with pkgs; [nodejs pnpm yarn bun typescript-language-server];
     shellHook = ''
       echo "node `node --version`"

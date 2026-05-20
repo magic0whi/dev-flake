@@ -23,6 +23,7 @@
     pkgs."python${serialize_ver version}";
 in
   pkgs.mkShell {
+    name = "Python";
     shellHook = ''
       python --version
     '';
