@@ -18,20 +18,22 @@ in {
   shell = pkgs.mkShell {
     # TIPS: to locate a missing lib, try
     # `nix run github:nix-community/nix-index-database#nix-locate -- "libX11.so.6"`
-    buildInputs = with cuda_pkgs; [
-      fmt.dev
-      cudaPackages.cuda_nvcc
+    nativeBuildInputs = with cuda_pkgs; [
       # cudaPackages.cuda_cudart
-      # cudatoolkit
-      # nvidiaPackage
       # cudaPackages.cudnn
+      fmt.dev
+      # freeglut
       # libGLU
       # libGL
-      # freeglut
-      # zlib
+      libX11
       # ncurses
       stdenv.cc.cc.lib
-      libX11
+      # zlib
+    ];
+    buildInputs = with cuda_pkgs; [
+      cudaPackages.cuda_nvcc
+      # cudatoolkit
+      # nvidiaPackage
       # stdenv.cc
       # binutils
       # uv
