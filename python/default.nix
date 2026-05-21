@@ -42,6 +42,17 @@ in
       }
       venvVersionWarn
     '';
+    nativeBuildInputs = with py_package.pkgs; [
+      requests
+      paramiko
+      scp
+      chardet
+      pyyaml
+      ruamel-yaml
+      flask # sing-box-subscribe
+      pytesseract
+    ];
+
     buildInputs = with py_package.pkgs;
       [
         venvShellHook
@@ -52,26 +63,8 @@ in
         python-lsp-server
         ruff
 
-        requests
-        paramiko
-        scp
-        chardet
-        pyyaml
-        ruamel-yaml
-        flask # sing-box-subscribe
-
-        pytesseract
         fava
         fava-dashboards
-        # (let version = "2.3.2";
-        # in flask.overrideAttrs (_: prev: {
-        #   inherit version;
-        #   src = fetchPypi {
-        #     inherit (prev) pname;
-        #     inherit version;
-        #     hash = "sha256-KEx7jy9Yy3N/DPHDD9fq8Mz83hlgmdJOzt4/wgBapZ4=";
-        #   };
-        # }))
       ]
       ++ extraPackages py_package.pkgs;
   }
