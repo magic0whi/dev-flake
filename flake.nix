@@ -90,6 +90,7 @@
           })
         ];
       };
+      rust = import_shell ./rust;
     });
   };
 }
