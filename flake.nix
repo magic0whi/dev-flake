@@ -1,96 +1,91 @@
 {
-  description = "My nix develops";
+  description = "My Nix flake managed develop environment";
   inputs = {
-    # Pinned as of 2026-05-04 17:55, branch: nixos-unstable
-    nixpkgs.url = "github:NixOS/nixpkgs/15f4ee454b1dce334612fa6843b3e05cf546efab";
+    # Align with my nixos-config
+    nixpkgs.url = "github:magic0whi/nixpkgs/main";
     # Pinned as of 2026-05-16 00:09
     treefmt-nix = {
       url = "github:numtide/treefmt-nix/790751ff7fd3801feeaf96d7dc416a8d581265ba";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
-  outputs = {
-    nixpkgs,
-    self,
-    treefmt-nix,
-    ...
-  }: let
-    supported_systems = ["aarch64-darwin" "x86_64-linux"];
-    for_each_system = f:
-      nixpkgs.lib.genAttrs supported_systems (system:
-        f (import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        }));
-    treefmt_eval = for_each_system (pkgs:
-      treefmt-nix.lib.evalModule pkgs (_: {
-        projectRootFile = "flake.nix"; # Used to find the project root
-        programs.alejandra.enable = true;
-      }));
-  in {
-    formatter = for_each_system (pkgs: treefmt_eval.${pkgs.stdenv.hostPlatform.system}.config.build.wrapper);
-    devShells = for_each_system (pkgs: let
-      import_shell = dir: pkgs.callPackage dir {};
-      c-cpp = import_shell ./c-cpp;
-      cuda_unwrapped = import_shell ./cuda;
-    in {
-      default = let
-        get_system = "$(nix eval --impure --raw --expr 'builtins.currentSystem')";
-        for_each_dir = exec: ''
-          for dir in */; do (
-            cd "''$dir"
-            ${exec}
-          )
-          done
-        '';
-        script = name: runtimeInputs: text:
-          pkgs.writeShellApplication {
-            inherit name runtimeInputs text;
-            bashOptions = ["errexit" "pipefail"];
+  outputs =
+    inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      debug = true;
+      systems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+      ];
+      imports = [
+        ./module-args.nix
+        ./treefmt.nix
+      ];
+      perSystem =
+        {
+          config,
+          lib,
+          pkgs,
+          self',
+          system,
+          ...
+        }:
+        let
+          import_shell = dir: pkgs.callPackage dir { };
+        in
+        {
+          devShells = {
+            default =
+              let
+                script =
+                  name: runtimeInputs: text:
+                  pkgs.writeShellApplication { inherit name runtimeInputs text; };
+              in
+              pkgs.mkShellNoCC {
+                name = "Dev-default";
+                buildInputs = [
+                  (script "build" [ ] (
+                    lib.concatLines (
+                      map (name: ''
+                        echo "Building ${name}"
+                        nix build ".#devShells.${system}.${name}"
+                      '') (builtins.filter (name: name != "default") (builtins.attrNames self'.devShells))
+                    )
+                  ))
+                  (script "check" [ ] ''
+                    nix flake check --no-build
+                  '')
+                  (script "format" [ ] ''
+                    git ls-files '*.nix' | xargs nix fmt
+                  '')
+                  (script "check-formatting" [ config.treefmt.programs.nixfmt.package ] ''
+                    git ls-files '*.nix' | xargs nixfmt --check
+                  '')
+                ]
+                ++ [ self'.formatter ];
+              };
+            c = import_shell ./c-cpp;
+            cpp = self'.devShells.c;
+            cuda = (import_shell ./cuda).shell;
+            cudaPython313 = pkgs.mkShellNoCC {
+              inputsFrom =
+                let
+                  _cuda = import_shell ./cuda;
+                in
+                [
+                  _cuda.shell
+                  (_cuda.cudaPkgs.callPackage ./python {
+                    pythonVersion = "3.13";
+                    extraPackages = ps: [ ps.vllm ];
+                  })
+                ];
+            };
+            latex = import_shell ./latex;
+            node = import_shell ./node;
+            python = import_shell ./python;
+            rust = import_shell ./rust;
           };
-      in
-        pkgs.mkShellNoCC {
-          name = "Dev-default";
-          buildInputs =
-            [
-              (script "build" [] ''
-                SYSTEM=${get_system}
-                ${for_each_dir ''
-                  echo "Building ''$dir"
-                  nix build ".#devShells.''$SYSTEM.default"
-                ''}
-              '')
-              (script "check" [pkgs.nixfmt] (for_each_dir ''
-                echo "Checking ''$dir"
-                nix flake check --all-systems --no-build
-              ''))
-              (script "format" [pkgs.nixfmt] ''
-                git ls-files '*.nix' | xargs nix fmt
-              '')
-              (script "check-formatting" [pkgs.nixfmt] ''
-                git ls-files '*.nix' | xargs nixfmt --check
-              '')
-            ]
-            ++ [self.formatter.${pkgs.stdenv.hostPlatform.system}];
         };
-      inherit c-cpp;
-      c = c-cpp;
-      cpp = c-cpp;
-      latex = import_shell ./latex;
-      node = import_shell ./node;
-      python = import_shell ./python;
-      cuda = cuda_unwrapped.shell;
-
-      pythonCuda = pkgs.mkShell {
-        inputsFrom = [
-          cuda_unwrapped.shell
-          (cuda_unwrapped.cudaPkgs.callPackage ./python {
-            pythonVersion = "3.13";
-            extraPackages = ps: [ps.vllm];
-          })
-        ];
-      };
-      rust = import_shell ./rust;
-    });
-  };
+    };
 }
