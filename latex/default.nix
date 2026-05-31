@@ -1,6 +1,7 @@
-{pkgs, ...}: let
-  my_texlive = pkgs.texlive.withPackages (ps:
-    with ps; [
+{ pkgs, ... }:
+let
+  my_texlive = pkgs.texlive.withPackages (
+    ps: with ps; [
       # texdoc # Recommended package to navigate the documentation
       bibtex
       latexmk
@@ -54,22 +55,25 @@
       ltxcmds # Deps of hyperref
       pdftexcmds # Deps of biblatex, hyperref
       xkeyval
-    ]);
+
+      latexindent
+    ]
+  );
 in
-  pkgs.mkShellNoCC {
-    name = "LaTeX";
-    buildInputs = with pkgs; [
-      my_texlive
-      texlab
-      ltex-ls
-      # tectonic
-    ];
-    shellHook = ''
-      # echo "node `node --version`"
-      lualatex --version
-      bibtex -version
-      latexmk -version
-      texlab --version
-      ltex-ls --version
-    '';
-  }
+pkgs.mkShellNoCC {
+  name = "LaTeX";
+  buildInputs = with pkgs; [
+    my_texlive
+    texlab
+    ltex-ls
+    # tectonic
+  ];
+  shellHook = ''
+    # echo "node `node --version`"
+    lualatex --version
+    bibtex -version
+    latexmk -version
+    texlab --version
+    ltex-ls --version
+  '';
+}

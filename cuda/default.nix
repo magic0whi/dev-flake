@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   nvidiaPackage = pkgs.linuxPackages.nvidiaPackages.stable;
   # NOTE: May move to flake.nix if there is any dev environment has cuda variant
   cuda_pkgs = import pkgs.path {
@@ -9,11 +10,12 @@
       # Highly recommended to set this to your specific GPU architecture to avoid
       # compiling CUDA code for every GPU ever made.
       # e.g., "8.6" for Ampere (RTX 3000 series), "8.9" for Ada (RTX 4000 series)
-      cudaCapabilities = ["8.6"];
+      cudaCapabilities = [ "8.6" ];
       cudaForwardCompat = false;
     };
   };
-in {
+in
+{
   cudaPkgs = cuda_pkgs; # Export for pythonCuda
   shell = pkgs.mkShell {
     # TIPS: to locate a missing lib, try

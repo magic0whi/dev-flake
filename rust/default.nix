@@ -1,7 +1,10 @@
-{pkgs, ...}: (pkgs.mkShell.override {
+{ pkgs, ... }:
+(pkgs.mkShellNoCC.override
+  {
     # Override stdenv to change compiler:
     # stdenv = pkgs.clangStdenv;
-  } {
+  }
+  {
     name = "Rust";
     nativeBuildInputs = with pkgs; [
       pkg-config
@@ -22,4 +25,5 @@
     shellHook = ''
       rustc --version && cargo --version
     '';
-  })
+  }
+)

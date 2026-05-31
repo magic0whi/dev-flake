@@ -1,9 +1,13 @@
-{pkgs, ...}: (pkgs.mkShell.override {
+{ pkgs, lib, ... }:
+(pkgs.mkShellNoCC.override
+  {
     # Override stdenv to change compiler:
     # stdenv = pkgs.clangStdenv;
-  } {
+  }
+  {
     name = "CPP";
-    buildInputs = with pkgs;
+    buildInputs =
+      with pkgs;
       [
         llvmPackages.clangUseLLVM
         llvmPackages.bintools
@@ -19,15 +23,12 @@
         # vcpkg
         # vcpkg-tool
       ]
-      ++ (
-        if stdenv.hostPlatform.isDarwin
-        then []
-        else [gdb]
-      );
+      ++ lib.optional (!stdenv.hostPlatform.isDarwin) [ gdb ];
     shellHook = ''
-      echo "------ gcc -----";
-      gcc --version
+      echo "------ clang -----";
+      cc --version
       echo "------ ld ------"
       ld -v
     '';
-  })
+  }
+)
