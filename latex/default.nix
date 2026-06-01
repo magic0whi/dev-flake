@@ -66,7 +66,8 @@ pkgs.mkShellNoCC {
     my_texlive
     texlab
     ltex-ls
-    # tectonic
+    tectonic # modernized TeX/LaTeX engine
+    tex-fmt
   ];
   shellHook = ''
     # echo "node `node --version`"
