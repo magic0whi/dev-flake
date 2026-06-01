@@ -8,10 +8,19 @@
       url = "github:numtide/treefmt-nix/790751ff7fd3801feeaf96d7dc416a8d581265ba";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts.url = "github:hercules-ci/flake-parts/f7c1a2d347e4c52d5fb8d10cb4d94b5884e546fb";
+    # devenv.url = "github:cachix/devenv/21d68a204558895af93ad82014f8fa83f9c9a51e";
   };
+  # nixConfig = {
+  #   extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
+  #   extra-substituters = "https://devenv.cachix.org";
+  # };
   outputs =
-    inputs@{ flake-parts, ... }:
+    inputs@{
+      flake-parts,
+      # devenv,
+      ...
+    }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       debug = true;
       systems = [
@@ -85,6 +94,26 @@
             node = import_shell ./node;
             python = import_shell ./python;
             rust = import_shell ./rust;
+            # devenv = devenv.lib.mkShell {
+            #   inherit inputs pkgs;
+            #   modules = [
+            #     (
+            #       { pkgs, ... }:
+            #       {
+            #         packages = [ pkgs.hello ];
+            #         enterShell = ''
+            #           hello
+            #         '';
+            #         processes.run.exec = "hello";
+            #         files."tex-fmt.toml".toml = {
+            #           wraplen = 120;
+            #           wrapmin = 120;
+            #           # format-tables = true
+            #         };
+            #       }
+            #     )
+            #   ];
+            # };
           };
         };
     };
