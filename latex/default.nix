@@ -11,6 +11,7 @@ let
       etoolbox
       setspace
       url # Deps of biblatex, hyperref
+      hyperref
       float
       booktabs
       enumitem
@@ -65,7 +66,7 @@ pkgs.mkShellNoCC {
   buildInputs = with pkgs; [
     my_texlive
     texlab
-    ltex-ls
+    ltex-ls-plus
     tectonic # modernized TeX/LaTeX engine
     tex-fmt
   ];
@@ -75,6 +76,6 @@ pkgs.mkShellNoCC {
     bibtex -version
     latexmk -version
     texlab --version
-    ltex-ls --version
+    ltex-ls-plus --version
   '';
 }
