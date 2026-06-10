@@ -7,10 +7,11 @@
   {
     name = "CPP";
     buildInputs =
-      with pkgs;
-      [
+      (with pkgs; [
         llvmPackages.clangUseLLVM
         llvmPackages.bintools
+        llvmPackages.libcxx
+        llvmPackages.lldb
         clang-tools
         cmake
         ninja
@@ -22,13 +23,15 @@
         # lcov
         # vcpkg
         # vcpkg-tool
-      ]
-      ++ lib.optional (!stdenv.hostPlatform.isDarwin) [ gdb ];
+      ])
+      ++ lib.optional (!pkgs.stdenv.hostPlatform.isDarwin) pkgs.gdb;
     shellHook = ''
       echo "------ clang -----";
       cc --version
       echo "------ ld ------"
       ld -v
+      echo "------ lldb ------"
+      lldb -v
     '';
   }
 )
