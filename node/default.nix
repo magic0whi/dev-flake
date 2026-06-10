@@ -15,6 +15,7 @@ _pkgs.mkShellNoCC {
     yarn
     bun
     typescript-language-server
+    vscode-css-languageserver
   ];
   shellHook = ''
     echo "node `node --version`"
