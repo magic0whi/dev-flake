@@ -9,6 +9,7 @@
     nativeBuildInputs = with pkgs; [
       pkg-config
       webkitgtk_4_1
+      openssl # Required by openssl-sys
       # wrapGAppsHook4
       # cargo-tauri
       # rustc
