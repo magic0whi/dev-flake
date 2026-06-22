@@ -46,14 +46,18 @@ pkgs.mkShellNoCC {
     venvVersionWarn
   '';
   nativeBuildInputs = with py_package.pkgs; [
+    # For sing-box-subscribe
     requests
     paramiko
     scp
-    chardet
-    pyyaml
     ruamel-yaml
-    flask # sing-box-subscribe
-    pytesseract
+    chardet
+    flask
+
+    # pyyaml
+    # pytesseract
+
+    sympy
   ];
 
   buildInputs =
@@ -69,6 +73,8 @@ pkgs.mkShellNoCC {
 
       fava
       fava-dashboards
+
+      jupyter
     ]
     ++ extraPackages py_package.pkgs;
 }
