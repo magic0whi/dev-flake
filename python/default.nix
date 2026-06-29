@@ -58,6 +58,8 @@ pkgs.mkShellNoCC {
     # pytesseract
 
     sympy
+    numpy
+    matplotlib
   ];
 
   buildInputs =
@@ -75,6 +77,7 @@ pkgs.mkShellNoCC {
       fava-dashboards
 
       jupyter
+      nbdime
     ]
     ++ extraPackages py_package.pkgs;
 }
