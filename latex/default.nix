@@ -52,6 +52,9 @@ let
       ps.import
       pdfpages
 
+      varwidth # Deps of witharrows
+      witharrows
+
       infwarerr # Deps of hyperref
       ltxcmds # Deps of hyperref
       pdftexcmds # Deps of biblatex, hyperref
@@ -67,8 +70,10 @@ pkgs.mkShellNoCC {
     my_texlive
     texlab
     ltex-ls-plus
-    tectonic # modernized TeX/LaTeX engine
     tex-fmt
+
+    typst
+    tinymist
   ];
   shellHook = ''
     # echo "node `node --version`"
