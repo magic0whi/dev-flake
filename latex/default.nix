@@ -82,5 +82,7 @@ pkgs.mkShellNoCC {
     latexmk -version
     texlab --version
     ltex-ls-plus --version
+    typst --version
+    echo "Typst live preview: tinymist preview <file>.typ"
   '';
 }
