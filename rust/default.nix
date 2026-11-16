@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  system,
+  prince-213-nix-packages,
+  ...
+}:
 (pkgs.mkShellNoCC.override
   {
     # Override stdenv to change compiler:
@@ -22,6 +27,7 @@
       # pango # Fixes the missing pango error
       # cairo
       # gdk-pixbuf
+      prince-213-nix-packages.packages.${system}.kodama
     ];
     shellHook = ''
       rustc --version && cargo --version
