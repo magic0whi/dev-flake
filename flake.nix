@@ -2,14 +2,14 @@
   description = "My Nix flake managed develop environment";
   inputs = {
     # Align with my nixos-config
-    nixpkgs.url = "github:magic0whi/nixpkgs/main";
-    # Pinned as of 2026-05-16 00:09
+    nixpkgs.url = "github:magic0whi/nixpkgs/nixos-unstable";
     treefmt-nix = {
-      url = "github:numtide/treefmt-nix/790751ff7fd3801feeaf96d7dc416a8d581265ba";
+      url = "github:numtide/treefmt-nix/0d6d739a833ba9a9c93034862e4a7b061a062a1c";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-parts.url = "github:hercules-ci/flake-parts/f7c1a2d347e4c52d5fb8d10cb4d94b5884e546fb";
+    flake-parts.url = "github:hercules-ci/flake-parts/ea2630b7470978622c7689a1ff75d2b389175399";
     # devenv.url = "github:cachix/devenv/21d68a204558895af93ad82014f8fa83f9c9a51e";
+    prince-213-nix-packages.url = "github:Prince213/nix-packages";
   };
   # nixConfig = {
   #   extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
@@ -41,7 +41,7 @@
           ...
         }:
         let
-          import_shell = dir: pkgs.callPackage dir { };
+          callPackage = pkgs.callPackage;
         in
         {
           devShells = {
@@ -74,26 +74,31 @@
                 ]
                 ++ [ self'.formatter ];
               };
-            c = import_shell ./c-cpp;
+            c = callPackage ./c-cpp { };
             cpp = self'.devShells.c;
-            cuda = (import_shell ./cuda).shell;
+            cuda = (callPackage ./cuda { }).shell;
             cudaPython313 = pkgs.mkShellNoCC {
               inputsFrom =
                 let
-                  _cuda = import_shell ./cuda;
+                  _cuda = callPackage ./cuda { };
                 in
                 [
                   _cuda.shell
                   (_cuda.cudaPkgs.callPackage ./python {
                     pythonVersion = "3.13";
-                    extraPackages = ps: [ ps.vllm ];
+                    extraPackages = _ps: [
+                      # ps.vllm
+                    ];
                   })
                 ];
             };
-            latex = import_shell ./latex;
-            node = import_shell ./node;
-            python = import_shell ./python;
-            rust = import_shell ./rust;
+            latex = callPackage ./latex { };
+            node = callPackage ./node { };
+            python = callPackage ./python { };
+            rust = pkgs.callPackage ./rust {
+              inherit system;
+              inherit (inputs) prince-213-nix-packages;
+            };
             # devenv = devenv.lib.mkShell {
             #   inherit inputs pkgs;
             #   modules = [
