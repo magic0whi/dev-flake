@@ -66,10 +66,6 @@ pkgs.mkShellNoCC {
     # Browser control
     playwright
 
-    # FIX: relax the bound jedi<0.20.0
-    (marimo.overridePythonAttrs (old: {
-      pythonRelaxDeps = (old.pythonRelaxDeps or [ ]) ++ [ "jedi" ];
-    }))
     pydantic-ai-slim
     mcp
     anthropic
