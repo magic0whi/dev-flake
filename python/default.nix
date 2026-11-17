@@ -23,7 +23,20 @@ let
           pkgs.lib.concatStrings # e.g. ["3" "13"] -> "313"
         ];
     in
-    pkgs."python${serialize_ver version}";
+    (pkgs."python${serialize_ver version}").override {
+      # TODO
+      # nixpkgs' marimo 0.25.1 declares ``uv_build>=0.8.3,<0.13.0`` but nixpkgs ships
+      # uv-build 0.13.4, which breaks the build. This mirrors the upstream fix
+      # (NixOS/nixpkgs f353f36) and can be dropped once the nixpkgs pin includes it.
+      packageOverrides = _pyFinal: pyPrev: {
+        marimo = pyPrev.marimo.overridePythonAttrs (old: {
+          postPatch = (old.postPatch or "") + ''
+            substituteInPlace pyproject.toml \
+              --replace-fail 'uv_build>=0.8.3,<0.13.0' 'uv_build>=0.8.3'
+          '';
+        });
+      };
+    };
 in
 pkgs.mkShellNoCC {
   name = "Python";
@@ -88,6 +101,8 @@ pkgs.mkShellNoCC {
 
       jupyter
       nbdime
+
+      marimo
     ]
     ++ extraPackages py_package.pkgs;
 }
