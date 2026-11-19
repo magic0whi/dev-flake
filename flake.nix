@@ -92,13 +92,13 @@
                   })
                 ];
             };
-            latex = callPackage ./latex { };
-            node = callPackage ./node { };
-            python = callPackage ./python { };
-            rust = pkgs.callPackage ./rust {
+            latex = callPackage ./latex {
               inherit system;
               inherit (inputs) prince-213-nix-packages;
             };
+            node = callPackage ./node { };
+            python = callPackage ./python { };
+            rust = callPackage ./rust { };
             # devenv = devenv.lib.mkShell {
             #   inherit inputs pkgs;
             #   modules = [

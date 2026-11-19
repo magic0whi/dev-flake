@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  prince-213-nix-packages,
+  system,
+  ...
+}:
 let
   my_texlive = pkgs.texlive.withPackages (
     ps: with ps; [
@@ -74,6 +79,7 @@ pkgs.mkShellNoCC {
 
     typst
     tinymist
+    prince-213-nix-packages.packages.${system}.kodama
   ];
   shellHook = ''
     # echo "node `node --version`"
@@ -84,5 +90,6 @@ pkgs.mkShellNoCC {
     ltex-ls-plus --version
     typst --version
     echo "Typst live preview: tinymist preview <file>.typ"
+    kodama --version
   '';
 }
